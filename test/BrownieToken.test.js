@@ -73,4 +73,29 @@ contract("BrownieToken", accounts => {
       assert.equal(result, true);
     });
   });
+
+  describe("approve function", () => {
+    it("should emit 'Approval' event", async () => {
+      const instance = await BrownieToken.deployed();
+
+      const reciept = await instance.approve(accounts[1], 100, { from: accounts[0] });
+
+      assert.equal(reciept.logs[0].event, "Approval");
+      assert.equal(reciept.logs[0].args._owner, accounts[0]);
+      assert.equal(reciept.logs[0].args._spender, accounts[1]);
+      assert.equal(reciept.logs[0].args._value, 100);
+    });
+    it("should return boolean", async () => {
+      const instance = await BrownieToken.deployed();
+      const result = await instance.approve.call(accounts[1], 100, { from: accounts[0] });
+
+      assert.equal(result, true);
+    });
+    it("should set allowance", async () => {
+      const instance = await BrownieToken.deployed();
+      const allowance = await instance.allowance(accounts[0], accounts[1]);
+
+      assert.equal(allowance.toNumber(), 100);
+    });
+  });
 });
