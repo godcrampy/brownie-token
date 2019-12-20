@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint '**/*.js' --fix",
     "pretty": "prettier '**/*.js' --write",
-    "format": "npm run lint && npm run pretty"
+    "format": "npm run lint && npm run pretty",
+    "test": "truffle test"
   },
   "devDependencies": {
     "eslint": "^6.7.2",
