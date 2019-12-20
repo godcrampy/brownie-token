@@ -33,10 +33,9 @@ contract("BrownieToken", accounts => {
     });
   });
 
-  describe("trasfer function", () => {
+  describe("transfer function", () => {
     it("should throw error if tokens more than the balance are transfered", async () => {
       const instance = await BrownieToken.deployed();
-      // const err = await instance.transfer(accounts[0], 10e5);
       try {
         await instance.transfer(accounts[0], 10e5);
         assert.fail();
@@ -59,17 +58,17 @@ contract("BrownieToken", accounts => {
     it("should emit 'Transfer' event", async () => {
       const instance = await BrownieToken.deployed();
 
-      const reciept = await instance.transfer(accounts[1], 100, { from: accounts[0] });
+      const reciept = await instance.transfer(accounts[0], 100, { from: accounts[1] });
 
       assert.equal(reciept.logs[0].event, "Transfer");
-      assert.equal(reciept.logs[0].args._from, accounts[0]);
-      assert.equal(reciept.logs[0].args._to, accounts[1]);
+      assert.equal(reciept.logs[0].args._from, accounts[1]);
+      assert.equal(reciept.logs[0].args._to, accounts[0]);
       assert.equal(reciept.logs[0].args._value, 100);
     });
 
     it("should return boolean value", async () => {
       const instance = await BrownieToken.deployed();
-      const result = await instance.transfer.call(accounts[0], 100, { from: accounts[1] });
+      const result = await instance.transfer.call(accounts[1], 100, { from: accounts[0] });
       assert.equal(result, true);
     });
   });
@@ -96,6 +95,63 @@ contract("BrownieToken", accounts => {
       const allowance = await instance.allowance(accounts[0], accounts[1]);
 
       assert.equal(allowance.toNumber(), 100);
+    });
+  });
+
+  describe("transferFrom function", () => {
+    it("should throw error if more than allowed tokens are transfered", async () => {
+      const instance = await BrownieToken.deployed();
+      try {
+        await instance.transferFrom(accounts[0], accounts[1], 10);
+        assert.fail();
+      } catch (error) {
+        assert.include(error.message, "Transfer not approved");
+      }
+    });
+    it("should throw error if tokens more than balance are transfered", async () => {
+      const instance = await BrownieToken.deployed();
+
+      try {
+        await instance.transferFrom(accounts[0], accounts[1], 2000);
+        assert.fail();
+      } catch (error) {
+        assert.include(error.message, "Inadequate Balance");
+      }
+    });
+    it("should transfer tokens", async () => {
+      const instance = await BrownieToken.deployed();
+
+      await instance.approve(accounts[1], 100, { from: accounts[0] });
+      await instance.transferFrom(accounts[0], accounts[1], 100);
+      const senderBalance = await instance.balanceOf(accounts[0]);
+      const recieverBalance = await instance.balanceOf(accounts[1]);
+
+      assert.equal(senderBalance.toNumber(), 900);
+      assert.equal(recieverBalance.toNumber(), 100);
+    });
+    it("should update allowance", async () => {
+      const instance = await BrownieToken.deployed();
+
+      // transaction of the previous test
+      const allowance = await instance.allowance(accounts[0], accounts[1]);
+      assert.equal(allowance.toNumber(), 0);
+    });
+    it("should emit 'Transfer' event", async () => {
+      const instance = await BrownieToken.deployed();
+      await instance.approve(accounts[1], 100, { from: accounts[0] });
+      const reciept = await instance.transferFrom(accounts[0], accounts[1], 100);
+
+      assert.equal(reciept.logs[0].event, "Transfer");
+      assert.equal(reciept.logs[0].args._from, accounts[0]);
+      assert.equal(reciept.logs[0].args._to, accounts[1]);
+      assert.equal(reciept.logs[0].args._value, 100);
+    });
+    it("should return boolean", async () => {
+      const instance = await BrownieToken.deployed();
+      await instance.approve(accounts[0], 100, { from: accounts[1] });
+      const result = await instance.transferFrom.call(accounts[1], accounts[0], 100);
+
+      assert.equal(result, true);
     });
   });
 });

@@ -24,9 +24,19 @@ contract BrownieToken{
     return true;
   }
 
-  function approve(address _spender, uint256 _value) public returns (bool success){
+  function approve(address _spender, uint256 _value) public returns (bool success) {
     allowance[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
+    return true;
+  }
+
+  function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+    require(allowance[_from][_to] <= _value, "Transfer not approved");
+    require(balanceOf[_from] >= _value, "Inadequate Balance");
+    balanceOf[_from] -= _value;
+    balanceOf[_to] += _value;
+    allowance[_from][_to] -= _value;
+    emit Transfer(_from, _to, _value);
     return true;
   }
 }
