@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-contract BrownieToken{
+contract BrownieToken {
   uint public totalSupply = 1000;
   string public name = "Brownie Token";
   string public symbol = "BRWN";
