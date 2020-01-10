@@ -12,4 +12,8 @@ contract TokenSale {
     token = _token;
     tokenPrice = _tokenPrice;
   }
+
+  function buyTokens(uint _numberOfTokens) public payable {
+    
+  }
 }
